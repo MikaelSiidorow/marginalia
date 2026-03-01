@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import { boolean, integer, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 // better-auth tables (managed by better-auth, do not insert/update directly)
@@ -103,13 +104,88 @@ export const notificationPreference = pgTable("notification_preference", {
 
 // Application tables
 
-export const note = pgTable("note", {
+export const project = pgTable("project", {
   id: text().primaryKey(),
-  title: text().notNull(),
-  content: text().notNull().default(""),
-  userId: text()
+  ownerId: text()
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
+  repoFullName: text().notNull(),
+  defaultBranch: text().notNull(),
+  entryFile: text().notNull(),
+  webhookSecret: text(),
   createdAt: timestamp().notNull(),
   updatedAt: timestamp().notNull(),
 });
+
+export const projectRelations = relations(project, ({ one, many }) => ({
+  owner: one(user, { fields: [project.ownerId], references: [user.id] }),
+  members: many(projectMember),
+  versions: many(repoVersion),
+  comments: many(comment),
+}));
+
+export const projectMember = pgTable("project_member", {
+  id: text().primaryKey(),
+  projectId: text()
+    .notNull()
+    .references(() => project.id, { onDelete: "cascade" }),
+  userId: text()
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  role: text({ enum: ["owner", "reviewer"] }).notNull(),
+  invitedAt: timestamp().notNull(),
+});
+
+export const projectMemberRelations = relations(projectMember, ({ one }) => ({
+  project: one(project, { fields: [projectMember.projectId], references: [project.id] }),
+  user: one(user, { fields: [projectMember.userId], references: [user.id] }),
+}));
+
+export const repoVersion = pgTable("repo_version", {
+  id: text().primaryKey(),
+  projectId: text()
+    .notNull()
+    .references(() => project.id, { onDelete: "cascade" }),
+  branch: text().notNull(),
+  commitSha: text().notNull(),
+  commitMessage: text().notNull(),
+  changedFiles: jsonb().$type<string[]>(),
+  createdAt: timestamp().notNull(),
+});
+
+export const repoVersionRelations = relations(repoVersion, ({ one }) => ({
+  project: one(project, { fields: [repoVersion.projectId], references: [project.id] }),
+}));
+
+export const comment = pgTable("comment", {
+  id: text().primaryKey(),
+  projectId: text()
+    .notNull()
+    .references(() => project.id, { onDelete: "cascade" }),
+  authorId: text()
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  anchorType: text({ enum: ["source", "pdf"] }).notNull(),
+  anchorFile: text(),
+  anchorLine: integer(),
+  anchorText: text(),
+  anchorPage: integer(),
+  anchorRect: jsonb().$type<{ x: number; y: number; width: number; height: number }>(),
+  body: text().notNull(),
+  suggestion: text(),
+  resolved: boolean().notNull(),
+  resolvedBy: text().references(() => user.id, { onDelete: "set null" }),
+  createdAt: timestamp().notNull(),
+  updatedAt: timestamp().notNull(),
+});
+
+export const commentRelations = relations(comment, ({ one }) => ({
+  project: one(project, { fields: [comment.projectId], references: [project.id] }),
+  author: one(user, { fields: [comment.authorId], references: [user.id] }),
+}));
+
+export const userRelations = relations(user, ({ many }) => ({
+  projects: many(project),
+  memberships: many(projectMember),
+  comments: many(comment),
+}));

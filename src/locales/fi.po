@@ -12,78 +12,251 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/routes/(app)/+page.svelte
+#: src/lib/components/viewer/TopBar.svelte
+#: src/routes/(app)/projects/new/+page.svelte
+msgid "Back to projects"
+msgstr ""
+
+#: src/routes/(app)/projects/[id]/+page.svelte
+msgid "Binary file — no preview available"
+msgstr ""
+
+#: src/lib/components/viewer/CommentsPanel.svelte
 msgid "Cancel"
 msgstr "Peruuta"
+
+#: src/routes/(app)/projects/new/+page.svelte
+msgid "Change"
+msgstr ""
 
 #: src/routes/(public)/sign-in/+page.svelte
 msgid "Check your email for a magic link to sign in."
 msgstr "Tarkista kirjautumislinkki sähköpostistasi."
 
-#: src/routes/(app)/+page.svelte
-#: src/routes/(app)/+page.svelte
-msgid "Content"
-msgstr "Sisältö"
+#: src/lib/components/viewer/CommentsSheet.svelte
+#: src/lib/components/viewer/ShareDialog.svelte
+msgid "Close"
+msgstr ""
+
+#: src/lib/components/viewer/CommentsPanel.svelte
+msgid "Comment"
+msgstr ""
+
+#: src/lib/components/viewer/CommentsPanel.svelte
+#: src/lib/components/viewer/TopBar.svelte
+msgid "Comments"
+msgstr ""
+
+#: src/lib/components/viewer/PreviewPane.svelte
+msgid "Compiling..."
+msgstr ""
 
 #: src/routes/(app)/+page.svelte
-msgid "Create note"
-msgstr "Luo muistiinpano"
+msgid "Connect GitHub"
+msgstr ""
 
 #: src/routes/(app)/+page.svelte
+#: src/routes/(app)/+page.svelte
+#~ msgid "Content"
+#~ msgstr "Sisältö"
+
+#: src/routes/(public)/sign-in/+page.svelte
+msgid "Continue with GitHub"
+msgstr ""
+
+#: src/routes/(app)/+page.svelte
+#~ msgid "Create note"
+#~ msgstr "Luo muistiinpano"
+
+#: src/routes/(app)/projects/new/+page.svelte
+msgid "Create project"
+msgstr ""
+
+#: src/routes/(app)/projects/new/+page.svelte
 msgid "Creating..."
 msgstr "Luodaan..."
 
 #: src/routes/(app)/+page.svelte
-msgid "Delete"
-msgstr "Poista"
+#~ msgid "Delete"
+#~ msgstr "Poista"
+
+#: src/lib/components/viewer/PreviewPane.svelte
+msgid "Diagnostics"
+msgstr ""
 
 #: src/routes/(app)/+page.svelte
-msgid "Edit"
-msgstr "Muokkaa"
+#~ msgid "Edit"
+#~ msgstr "Muokkaa"
 
+#: src/lib/components/viewer/ShareDialog.svelte
 #: src/routes/(public)/sign-in/+page.svelte
 msgid "Email"
 msgstr "Sähköpostiosoite"
+
+#: src/routes/(app)/projects/new/+page.svelte
+msgid "Entry file"
+msgstr ""
+
+#: src/lib/components/viewer/ShareDialog.svelte
+msgid "Failed to send invitation"
+msgstr ""
+
+#: src/routes/(public)/sign-in/+page.svelte
+msgid "Failed to sign in with GitHub"
+msgstr ""
+
+#: src/lib/components/viewer/FileTree.svelte
+msgid "File tree"
+msgstr ""
 
 #: src/lib/server/emails/magic-link.ts
 msgid "If you didn't try to sign in, you can safely ignore this email."
 msgstr "Jos et yrittänyt kirjautua, voit jättää tämän sähköpostin huomiotta."
 
-#: src/routes/(app)/+page.svelte
-msgid "New note"
-msgstr "Uusi muistiinpano"
+#: src/lib/components/viewer/ShareDialog.svelte
+msgid "Invitation sent!"
+msgstr ""
+
+#: src/lib/components/viewer/ShareDialog.svelte
+msgid "Invite a reviewer by email. They'll receive a magic link to access this project."
+msgstr ""
+
+#: src/lib/components/viewer/CommentThread.svelte
+msgid "just now"
+msgstr ""
+
+#: src/routes/(app)/projects/[id]/+page.svelte
+msgid "Loading files..."
+msgstr ""
+
+#: src/routes/(app)/projects/[id]/+page.svelte
+msgid "Loading project..."
+msgstr ""
+
+#: src/routes/(app)/projects/new/+page.svelte
+msgid "Loading repositories..."
+msgstr ""
+
+#: src/routes/(app)/projects/[id]/+page.svelte
+msgid "Loading..."
+msgstr ""
 
 #: src/routes/(app)/+page.svelte
-msgid "No notes yet. Create one above!"
-msgstr "Ei vielä muistiinpanoja. Luo ensimmäinen yllä!"
+#~ msgid "New note"
+#~ msgstr "Uusi muistiinpano"
 
 #: src/routes/(app)/+page.svelte
-msgid "Note title"
-msgstr "Muistiinpanon otsikko"
+#: src/routes/(app)/projects/new/+page.svelte
+msgid "New project"
+msgstr ""
+
+#: src/lib/components/viewer/CommentsPanel.svelte
+msgid "No comments yet. Click a line number to add one."
+msgstr ""
+
+#: src/lib/components/viewer/FileTree.svelte
+msgid "No files"
+msgstr ""
 
 #: src/routes/(app)/+page.svelte
-msgid "Notes"
-msgstr "Muistiinpanot"
+#~ msgid "No notes yet. Create one above!"
+#~ msgstr "Ei vielä muistiinpanoja. Luo ensimmäinen yllä!"
+
+#: src/lib/components/viewer/PreviewPane.svelte
+msgid "No preview available"
+msgstr ""
+
+#: src/routes/(app)/+page.svelte
+msgid "No projects yet. Create one to get started!"
+msgstr ""
+
+#: src/routes/(app)/projects/new/+page.svelte
+msgid "No repositories found"
+msgstr ""
+
+#: src/routes/(app)/+page.svelte
+#~ msgid "Note title"
+#~ msgstr "Muistiinpanon otsikko"
+
+#: src/routes/(app)/+page.svelte
+#~ msgid "Notes"
+#~ msgstr "Muistiinpanot"
+
+#: src/routes/(public)/sign-in/+page.svelte
+msgid "or"
+msgstr ""
 
 #: src/lib/server/emails/magic-link.ts
 msgid "Or, copy and paste this temporary login URL:"
 msgstr "Tai kopioi ja liitä tämä väliaikainen kirjautumislinkki:"
+
+#: src/lib/components/viewer/ShareDialog.svelte
+msgid "Please enter a valid email"
+msgstr ""
 
 #: src/routes/(public)/sign-in/+page.svelte
 msgid "Please enter a valid email address"
 msgstr "Syötä kelvollinen sähköpostiosoite"
 
 #: src/routes/(app)/+page.svelte
-msgid "Save"
-msgstr "Tallenna"
+msgid "Projects"
+msgstr ""
+
+#: src/routes/(public)/sign-in/+page.svelte
+msgid "Redirecting..."
+msgstr ""
+
+#: src/routes/(app)/projects/new/+page.svelte
+msgid "Required"
+msgstr ""
+
+#: src/lib/components/viewer/CommentThread.svelte
+msgid "Resolve"
+msgstr ""
+
+#: src/lib/components/viewer/CommentsPanel.svelte
+msgid "Resolved"
+msgstr ""
+
+#: src/lib/components/viewer/ShareDialog.svelte
+msgid "reviewer@example.com"
+msgstr ""
 
 #: src/routes/(app)/+page.svelte
-msgid "Saving..."
-msgstr "Tallennetaan..."
+#~ msgid "Save"
+#~ msgstr "Tallenna"
+
+#: src/routes/(app)/+page.svelte
+#~ msgid "Saving..."
+#~ msgstr "Tallennetaan..."
+
+#: src/routes/(app)/projects/new/+page.svelte
+msgid "Search repositories..."
+msgstr ""
+
+#: src/routes/(app)/projects/[id]/+page.svelte
+msgid "Select a file to view"
+msgstr ""
+
+#: src/lib/components/viewer/ShareDialog.svelte
+msgid "Send invitation"
+msgstr ""
 
 #: src/routes/(public)/sign-in/+page.svelte
 msgid "Sending magic link..."
 msgstr "Lähetetään kirjautumislinkkiä..."
+
+#: src/lib/components/viewer/ShareDialog.svelte
+msgid "Sending..."
+msgstr ""
+
+#: src/lib/components/viewer/TopBar.svelte
+msgid "Share"
+msgstr ""
+
+#: src/lib/components/viewer/ShareDialog.svelte
+msgid "Share project"
+msgstr ""
 
 #: src/lib/server/emails/magic-link.ts
 msgid "Sign in"
@@ -105,17 +278,21 @@ msgstr "Kirjaudu ulos"
 
 #: src/routes/(app)/+page.svelte
 #: src/routes/(app)/+page.svelte
-msgid "Title"
-msgstr "Otsikko"
+#~ msgid "Title"
+#~ msgstr "Otsikko"
 
 #: src/routes/(app)/+page.svelte
-msgid "Title is required"
-msgstr "Otsikko on pakollinen"
+#~ msgid "Title is required"
+#~ msgstr "Otsikko on pakollinen"
+
+#: src/lib/components/viewer/CommentsPanel.svelte
+msgid "Write a comment..."
+msgstr ""
 
 #: src/routes/(app)/+page.svelte
-msgid "Write something..."
-msgstr "Kirjoita jotain..."
+#~ msgid "Write something..."
+#~ msgstr "Kirjoita jotain..."
 
 #: src/routes/(app)/+page.svelte
-msgid "Your notes"
-msgstr "Muistiinpanosi"
+#~ msgid "Your notes"
+#~ msgstr "Muistiinpanosi"

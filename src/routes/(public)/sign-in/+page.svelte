@@ -1,6 +1,7 @@
 <script lang="ts">
   import EnvelopeSimpleIcon from "phosphor-svelte/lib/EnvelopeSimpleIcon";
   import CheckCircleIcon from "phosphor-svelte/lib/CheckCircleIcon";
+  import GithubLogoIcon from "phosphor-svelte/lib/GithubLogoIcon";
   import Button from "$lib/components/ui/Button";
   import FormField from "$lib/components/ui/FormField";
   import Input from "$lib/components/ui/Input";
@@ -10,6 +11,22 @@
   import { useLingui } from "@mikstack/svelte-lingui";
   import LocaleSwitcher from "$lib/LocaleSwitcher.svelte";
   const { t } = useLingui();
+
+  let githubLoading = $state(false);
+  let githubError = $state<string | null>(null);
+
+  async function signInWithGithub() {
+    githubLoading = true;
+    githubError = null;
+    const { error } = await authClient.signIn.social({
+      provider: "github",
+      callbackURL: "/",
+    });
+    if (error) {
+      githubError = error.message ?? t`Failed to sign in with GitHub`;
+    }
+    githubLoading = false;
+  }
 
   const form = createForm({
     schema: v.object({
@@ -35,6 +52,19 @@
   </div>
   <h1>{t`Sign in to marginalia`}</h1>
 
+  <Button variant="secondary" onclick={signInWithGithub} disabled={githubLoading}>
+    <GithubLogoIcon size={16} weight="bold" />
+    {githubLoading ? t`Redirecting...` : t`Continue with GitHub`}
+  </Button>
+
+  {#if githubError}
+    <p class="form-error">{githubError}</p>
+  {/if}
+
+  <div class="divider">
+    <span>{t`or`}</span>
+  </div>
+
   {#if form.result}
     <div class="success">
       <CheckCircleIcon size={24} weight="duotone" />
@@ -58,7 +88,7 @@
         <p class="form-error">{form.error}</p>
       {/if}
 
-      <Button type="submit" disabled={form.pending}>
+      <Button type="submit" variant="ghost" disabled={form.pending}>
         <EnvelopeSimpleIcon size={16} weight="bold" />
         {form.pending ? t`Sending magic link...` : t`Sign in with magic link`}
       </Button>
@@ -83,6 +113,22 @@
 
   h1 {
     font-size: var(--text-2xl);
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--text-2);
+    font-size: var(--text-sm);
+
+    &::before,
+    &::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background-color: var(--border);
+    }
   }
 
   .sign-in-form {

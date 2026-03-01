@@ -10,6 +10,8 @@ const envSchema = v.object({
   SMTP_USER: v.optional(v.string()),
   SMTP_PASS: v.optional(v.string()),
   SMTP_FROM: v.optional(v.string()),
+  GITHUB_CLIENT_ID: v.optional(v.string()),
+  GITHUB_CLIENT_SECRET: v.optional(v.string()),
 });
 
 const parsed = v.safeParse(envSchema, {
@@ -21,6 +23,8 @@ const parsed = v.safeParse(envSchema, {
   SMTP_USER: privateEnv.SMTP_USER || undefined,
   SMTP_PASS: privateEnv.SMTP_PASS || undefined,
   SMTP_FROM: privateEnv.SMTP_FROM || undefined,
+  GITHUB_CLIENT_ID: privateEnv.GITHUB_CLIENT_ID || undefined,
+  GITHUB_CLIENT_SECRET: privateEnv.GITHUB_CLIENT_SECRET || undefined,
 });
 
 if (!parsed.success) {

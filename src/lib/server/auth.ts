@@ -18,6 +18,16 @@ function createAuth() {
       provider: "pg",
       schema,
     }),
+    socialProviders: {
+      ...(env.GITHUB_CLIENT_ID &&
+        env.GITHUB_CLIENT_SECRET && {
+          github: {
+            clientId: env.GITHUB_CLIENT_ID,
+            clientSecret: env.GITHUB_CLIENT_SECRET,
+            scope: ["user:email", "repo"],
+          },
+        }),
+    },
     plugins: [
       magicLink({
         sendMagicLink: async ({ email, url }) => {
@@ -30,6 +40,13 @@ function createAuth() {
       }),
       sveltekitCookies(getRequestEvent),
     ],
+    account: {
+      accountLinking: {
+        enabled: true,
+        trustedProviders: ["github"],
+        allowDifferentEmails: true,
+      },
+    },
   });
 }
 
