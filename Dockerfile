@@ -5,6 +5,9 @@ FROM oven/bun:1-slim AS builder
 ARG GITHUB_SHA=unknown
 ARG GITHUB_REF_NAME=unknown
 
+# Install node (needed for drizzle-zero which uses tsx internally)
+RUN apt-get update && apt-get install -y --no-install-recommends nodejs && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 # Copy dependency files first for better caching
@@ -17,8 +20,8 @@ RUN bun install --frozen-lockfile --ignore-scripts
 # Copy source code
 COPY . .
 
-# Generate Zero schema from Drizzle schema
-RUN bun run zero:generate
+# Generate Zero schema (bunx runs with node - drizzle-zero's tsx doesn't work with bun)
+RUN bunx drizzle-zero generate --output src/lib/zero/zero-schema.gen.ts
 
 # Build application with metadata
 ENV GITHUB_SHA=${GITHUB_SHA}
