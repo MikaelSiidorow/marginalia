@@ -18,7 +18,7 @@
     compiling: boolean;
     error: string | null;
     diagnostics: string[];
-    getPageSvg: (page: number) => string | undefined;
+    getPageUrl: (page: number) => string;
     scrollTarget: { page: number; y: number } | null;
     onsourceloc?: (loc: SourceLocation) => void;
   }
@@ -29,7 +29,7 @@
     compiling,
     error,
     diagnostics,
-    getPageSvg,
+    getPageUrl,
     scrollTarget,
     onsourceloc,
   }: Props = $props();
@@ -41,6 +41,12 @@
 
   // Track which pages have their SVG injected into the DOM
   let renderedPages = new SvelteSet<number>();
+
+  // Track pages currently being fetched to prevent duplicate requests
+  let loadingPages = new Set<number>();
+
+  // Client-side SVG cache: page index → SVG string (survives unrender/re-render cycles)
+  let svgCache = new Map<number, string>();
 
   function observeSlots() {
     if (!previewEl || !observer) return;
@@ -83,28 +89,66 @@
     };
   });
 
-  // Re-observe when pages change
+  // Re-observe when pages change and preload all SVGs
   $effect(() => {
     const _pages = pages;
     renderedPages.clear();
+    loadingPages.clear();
+    svgCache.clear();
     queueMicrotask(() => observeSlots());
+
+    // Preload all pages in the background (low priority, sequential)
+    if (_pages.length > 0) {
+      preloadAll(_pages.length);
+    }
   });
 
-  function renderPage(pageIndex: number, slot: HTMLElement) {
-    if (renderedPages.has(pageIndex)) return;
-
-    const svg = getPageSvg(pageIndex);
-    if (!svg) return;
-
-    const container = slot.querySelector(".page-content") as HTMLElement;
-    if (container) {
-      // Use Shadow DOM to isolate SVG styles from the rest of the page
-      let shadow = container.shadowRoot;
-      if (!shadow) {
-        shadow = container.attachShadow({ mode: "open" });
+  async function preloadAll(pageCount: number) {
+    for (let i = 0; i < pageCount; i++) {
+      if (svgCache.has(i)) continue;
+      try {
+        const url = getPageUrl(i);
+        const res = await fetch(url);
+        if (!res.ok) continue;
+        svgCache.set(i, await res.text());
+      } catch {
+        // ignore preload failures
       }
-      shadow.innerHTML = `<style>svg { display: block; width: 100%; height: auto; }</style>${svg}`;
-      renderedPages.add(pageIndex);
+    }
+  }
+
+  function injectSvg(pageIndex: number, slot: HTMLElement, svg: string) {
+    const container = slot.querySelector(".page-content") as HTMLElement;
+    if (!container) return;
+    let shadow = container.shadowRoot;
+    if (!shadow) {
+      shadow = container.attachShadow({ mode: "open" });
+    }
+    shadow.innerHTML = `<style>svg { display: block; width: 100%; height: auto; }</style>${svg}`;
+    renderedPages.add(pageIndex);
+  }
+
+  async function renderPage(pageIndex: number, slot: HTMLElement) {
+    if (renderedPages.has(pageIndex) || loadingPages.has(pageIndex)) return;
+
+    // Use cached SVG if available (instant)
+    const cached = svgCache.get(pageIndex);
+    if (cached) {
+      injectSvg(pageIndex, slot, cached);
+      return;
+    }
+
+    loadingPages.add(pageIndex);
+
+    try {
+      const url = getPageUrl(pageIndex);
+      const res = await fetch(url);
+      if (!res.ok) return;
+      const svg = await res.text();
+      svgCache.set(pageIndex, svg);
+      injectSvg(pageIndex, slot, svg);
+    } finally {
+      loadingPages.delete(pageIndex);
     }
   }
 

@@ -258,7 +258,7 @@
           compiling={typstProject.compiling}
           error={typstProject.error}
           diagnostics={typstProject.diagnostics}
-          getPageSvg={(page) => typstProject.getPageSvg(page)}
+          getPageUrl={(page) => typstProject.getPageUrl(page)}
           {scrollTarget}
           onsourceloc={handleSourceLoc}
         />

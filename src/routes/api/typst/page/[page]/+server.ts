@@ -47,7 +47,7 @@ export const GET: RequestHandler = async ({ locals, url, params }) => {
   return new Response(result.pageSvgs[pageIndex], {
     headers: {
       "Content-Type": "image/svg+xml",
-      "Cache-Control": "private, max-age=30",
+      "Cache-Control": "private, max-age=3600",
     },
   });
 };

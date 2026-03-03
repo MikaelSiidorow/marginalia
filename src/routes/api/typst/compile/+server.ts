@@ -35,8 +35,8 @@ export const POST: RequestHandler = async ({ locals, request }) => {
     const result = await compileProject(projectId);
     return Response.json({
       pages: result.pages,
-      pageSvgs: result.pageSvgs,
       diagnostics: result.diagnostics,
+      timestamp: result.timestamp,
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Compilation failed";

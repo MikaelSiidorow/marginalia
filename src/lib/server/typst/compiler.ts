@@ -93,27 +93,65 @@ export interface WorkspaceInfo {
   filePaths: string[];
 }
 
-// Track workspace timestamps and cached file lists
-const workspaceTimestamps = new Map<string, number>();
+// Track workspace tree SHAs for change detection
+const workspaceTreeShas = new Map<string, string>();
 const workspaceFilePaths = new Map<string, string[]>();
+
+// In-flight deduplication for workspace creation
+const workspacePromises = new Map<string, Promise<WorkspaceInfo>>();
+
+// In-flight deduplication for compilation
+const compilePromises = new Map<string, Promise<CompileResult>>();
+
+const COMPILE_TIMEOUT_MS = 60_000;
+const BLOB_CONCURRENCY = 10;
+
+/**
+ * Run promises with a concurrency limit.
+ */
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let nextIndex = 0;
+
+  async function worker() {
+    while (nextIndex < items.length) {
+      const i = nextIndex++;
+      results[i] = await fn(items[i]!);
+    }
+  }
+
+  const workers = Array.from({ length: Math.min(limit, items.length) }, () => worker());
+  await Promise.all(workers);
+  return results;
+}
 
 /**
  * Ensure project files are written to a temp directory.
  * Returns the workspace path and entry file. Keeps files on disk
  * so both the compiler and tinymist can use them.
+ *
+ * Uses tree SHA to skip blob fetching when content hasn't changed.
  */
 export async function ensureWorkspace(projectId: string): Promise<WorkspaceInfo> {
-  // Reuse if workspace was written recently (30s)
-  const workDir = join(tmpdir(), `marginalia-${projectId}`);
-  const lastWrite = workspaceTimestamps.get(projectId);
-  if (lastWrite && Date.now() - lastWrite < 30_000 && existsSync(workDir)) {
-    const [project] = await db
-      .select({ entryFile: schema.project.entryFile })
-      .from(schema.project)
-      .where(eq(schema.project.id, projectId))
-      .limit(1);
-    return { workDir, entryFile: project?.entryFile || "main.typ", filePaths: workspaceFilePaths.get(projectId) ?? [] };
+  // Deduplicate concurrent calls for the same project
+  const inflight = workspacePromises.get(projectId);
+  if (inflight) return inflight;
+
+  const promise = ensureWorkspaceImpl(projectId);
+  workspacePromises.set(projectId, promise);
+  try {
+    return await promise;
+  } finally {
+    workspacePromises.delete(projectId);
   }
+}
+
+async function ensureWorkspaceImpl(projectId: string): Promise<WorkspaceInfo> {
+  const workDir = join(tmpdir(), `marginalia-${projectId}`);
 
   // Get project
   const [project] = await db
@@ -132,25 +170,33 @@ export async function ensureWorkspace(projectId: string): Promise<WorkspaceInfo>
     throw new Error("GitHub not connected for project owner");
   }
 
-  // Fetch file tree
+  // Fetch file tree (lightweight — just metadata + tree SHA)
   const tree = await githubApi<GitHubTree>(
     token,
     `/repos/${project.repoFullName}/git/trees/${project.defaultBranch}?recursive=1`,
   );
 
+  // Check if tree SHA matches — if so, workspace is already up to date
+  const previousSha = workspaceTreeShas.get(projectId);
+  if (previousSha === tree.sha && existsSync(workDir)) {
+    return {
+      workDir,
+      entryFile: project.entryFile || "main.typ",
+      filePaths: workspaceFilePaths.get(projectId) ?? [],
+    };
+  }
+
   const blobs = tree.tree.filter((e) => e.type === "blob");
 
-  // Fetch all file contents in parallel
-  const fileContents = await Promise.all(
-    blobs.map(async (entry) => {
-      const blob = await githubApi<GitHubBlob>(
-        token,
-        `/repos/${project.repoFullName}/git/blobs/${entry.sha}`,
-      );
-      const bytes = Buffer.from(blob.content.replace(/\s/g, ""), "base64");
-      return { path: entry.path, bytes };
-    }),
-  );
+  // Fetch file contents with concurrency limit
+  const fileContents = await mapWithConcurrency(blobs, BLOB_CONCURRENCY, async (entry) => {
+    const blob = await githubApi<GitHubBlob>(
+      token,
+      `/repos/${project.repoFullName}/git/blobs/${entry.sha}`,
+    );
+    const bytes = Buffer.from(blob.content.replace(/\s/g, ""), "base64");
+    return { path: entry.path, bytes };
+  });
 
   // Write files to disk
   rmSync(workDir, { recursive: true, force: true });
@@ -164,7 +210,7 @@ export async function ensureWorkspace(projectId: string): Promise<WorkspaceInfo>
     filePaths.push(path);
   }
 
-  workspaceTimestamps.set(projectId, Date.now());
+  workspaceTreeShas.set(projectId, tree.sha);
   workspaceFilePaths.set(projectId, filePaths);
 
   return {
@@ -176,6 +222,7 @@ export async function ensureWorkspace(projectId: string): Promise<WorkspaceInfo>
 
 /**
  * Write project files to a temp directory and compile with NodeCompiler.
+ * Deduplicates concurrent calls for the same project.
  */
 export async function compileProject(projectId: string): Promise<CompileResult> {
   // Check cache (TTL: 30 seconds)
@@ -184,13 +231,35 @@ export async function compileProject(projectId: string): Promise<CompileResult> 
     return cached;
   }
 
+  // Deduplicate concurrent compilations
+  const inflight = compilePromises.get(projectId);
+  if (inflight) return inflight;
+
+  const promise = compileProjectImpl(projectId);
+  compilePromises.set(projectId, promise);
+  try {
+    return await promise;
+  } finally {
+    compilePromises.delete(projectId);
+  }
+}
+
+async function compileProjectImpl(projectId: string): Promise<CompileResult> {
   const { workDir, entryFile } = await ensureWorkspace(projectId);
 
   const c = NodeCompiler.create({ workspace: workDir });
 
   try {
     const mainPath = join(workDir, entryFile);
-    const compileResult = c.compile({ mainFilePath: mainPath });
+
+    // Wrap compilation in a timeout
+    const compileResult = await Promise.race([
+      Promise.resolve(c.compile({ mainFilePath: mainPath })),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Compilation timed out (60s limit)")), COMPILE_TIMEOUT_MS),
+      ),
+    ]);
+
     const diagnostics: string[] = [];
 
     const diagErr = compileResult.takeDiagnostics();

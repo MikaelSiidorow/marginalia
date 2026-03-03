@@ -1,6 +1,7 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
+import { rm } from "node:fs/promises";
 import WebSocket from "ws";
 import { ensureWorkspace } from "./compiler";
 
@@ -8,6 +9,8 @@ const TINYMIST_BIN =
   process.env.TINYMIST_BIN || join(process.env.HOME || "/root", ".local/bin/tinymist");
 
 const IDLE_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+const MAX_SESSIONS = 20;
+const CLEANUP_DELAY_MS = 30_000;
 
 interface JumpToPreviewResult {
   page: number;
@@ -74,6 +77,11 @@ class TinymistSession {
     this.outlinePromise = new Promise((resolve) => {
       this.outlineResolve = resolve;
     });
+  }
+
+  /** Check if the underlying process is still alive. */
+  isAlive(): boolean {
+    return this.process !== null && this.process.exitCode === null && !this.process.killed;
   }
 
   async initialize(): Promise<void> {
@@ -548,21 +556,55 @@ class TinymistSession {
     }
     this.ready = false;
     sessions.delete(this.projectId);
+
+    // Clean up temp dir after a delay (avoids racing with concurrent page requests)
+    const workDir = this.workDir;
+    if (workDir) {
+      setTimeout(() => {
+        rm(workDir, { recursive: true, force: true }).catch(() => {});
+      }, CLEANUP_DELAY_MS);
+    }
   }
 }
 
-// Session pool: one per project
+// Session pool: one per project, insertion-ordered for LRU eviction
 const sessions = new Map<string, TinymistSession>();
 const initPromises = new Map<string, Promise<TinymistSession>>();
 
+/**
+ * Evict the oldest session if at the limit.
+ */
+function evictIfNeeded() {
+  if (sessions.size < MAX_SESSIONS) return;
+  // Map iteration is in insertion order — first key is the oldest
+  const oldestKey = sessions.keys().next().value;
+  if (oldestKey) {
+    const oldest = sessions.get(oldestKey);
+    console.log(`[tinymist] evicting oldest session: ${oldestKey}`);
+    oldest?.dispose();
+  }
+}
+
 async function getSession(projectId: string): Promise<TinymistSession> {
   const existing = sessions.get(projectId);
-  if (existing) return existing;
+  if (existing) {
+    // Crash recovery: check if process is still alive
+    if (!existing.isAlive()) {
+      console.log(`[tinymist:${projectId}] process dead, removing stale session`);
+      sessions.delete(projectId);
+    } else {
+      // Move to end of map for LRU (delete + re-insert)
+      sessions.delete(projectId);
+      sessions.set(projectId, existing);
+      return existing;
+    }
+  }
 
   const pending = initPromises.get(projectId);
   if (pending) return pending;
 
   const promise = (async () => {
+    evictIfNeeded();
     const session = new TinymistSession(projectId);
     try {
       await session.initialize();
