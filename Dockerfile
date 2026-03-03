@@ -23,6 +23,9 @@ COPY . .
 # Generate Zero schema (bunx runs with node - drizzle-zero's tsx doesn't work with bun)
 RUN bunx drizzle-zero generate --output src/lib/zero/zero-schema.gen.ts
 
+# Generate SvelteKit files (tsconfig, types)
+RUN bunx svelte-kit sync
+
 # Build application with metadata
 ENV GITHUB_SHA=${GITHUB_SHA}
 ENV GITHUB_REF_NAME=${GITHUB_REF_NAME}
