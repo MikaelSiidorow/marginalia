@@ -77,12 +77,9 @@ function createAuth() {
     // Cookie domain for cross-subdomain auth (e.g., ".marginalia.miksu.app")
     ...(env.COOKIE_DOMAIN && {
       advanced: {
-        cookies: {
-          sessionToken: {
-            attributes: {
-              domain: env.COOKIE_DOMAIN,
-            },
-          },
+        crossSubDomainCookies: {
+          enabled: true,
+          domain: env.COOKIE_DOMAIN,
         },
       },
     }),
