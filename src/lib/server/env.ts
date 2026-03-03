@@ -5,6 +5,9 @@ const envSchema = v.object({
   DATABASE_URL: v.pipe(v.string(), v.minLength(1, "DATABASE_URL is required")),
   BETTER_AUTH_SECRET: v.pipe(v.string(), v.minLength(1, "BETTER_AUTH_SECRET is required")),
   BETTER_AUTH_URL: v.optional(v.string(), "http://localhost:5173"),
+  COOKIE_DOMAIN: v.optional(v.string()), // e.g., ".marginalia.miksu.app"
+  OTEL_EXPORTER_OTLP_ENDPOINT: v.optional(v.string()), // e.g., "http://otel-collector:4318"
+  LOG_LEVEL: v.optional(v.string()),
   SMTP_HOST: v.optional(v.string()),
   SMTP_PORT: v.optional(v.string()),
   SMTP_USER: v.optional(v.string()),
@@ -18,6 +21,9 @@ const parsed = v.safeParse(envSchema, {
   DATABASE_URL: privateEnv.DATABASE_URL,
   BETTER_AUTH_SECRET: privateEnv.BETTER_AUTH_SECRET,
   BETTER_AUTH_URL: privateEnv.BETTER_AUTH_URL || undefined,
+  COOKIE_DOMAIN: privateEnv.COOKIE_DOMAIN || undefined,
+  OTEL_EXPORTER_OTLP_ENDPOINT: privateEnv.OTEL_EXPORTER_OTLP_ENDPOINT || undefined,
+  LOG_LEVEL: privateEnv.LOG_LEVEL || undefined,
   SMTP_HOST: privateEnv.SMTP_HOST || undefined,
   SMTP_PORT: privateEnv.SMTP_PORT || undefined,
   SMTP_USER: privateEnv.SMTP_USER || undefined,

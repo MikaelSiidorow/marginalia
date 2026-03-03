@@ -74,6 +74,18 @@ function createAuth() {
         allowDifferentEmails: true,
       },
     },
+    // Cookie domain for cross-subdomain auth (e.g., ".marginalia.miksu.app")
+    ...(env.COOKIE_DOMAIN && {
+      advanced: {
+        cookies: {
+          sessionToken: {
+            attributes: {
+              domain: env.COOKIE_DOMAIN,
+            },
+          },
+        },
+      },
+    }),
   });
 }
 
