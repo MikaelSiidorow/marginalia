@@ -84,10 +84,7 @@ export const mutators = defineMutators({
       async ({ tx, ctx, args }) => {
         // Verify membership
         const member = await tx.run(
-          zql.projectMember
-            .where("projectId", args.projectId)
-            .where("userId", ctx.userID)
-            .one(),
+          zql.projectMember.where("projectId", args.projectId).where("userId", ctx.userID).one(),
         );
         if (!member) return;
         const now = Date.now();
@@ -114,10 +111,7 @@ export const mutators = defineMutators({
       v.object({ id: v.string(), projectId: v.string() }),
       async ({ tx, ctx, args }) => {
         const member = await tx.run(
-          zql.projectMember
-            .where("projectId", args.projectId)
-            .where("userId", ctx.userID)
-            .one(),
+          zql.projectMember.where("projectId", args.projectId).where("userId", ctx.userID).one(),
         );
         if (!member) return;
         await tx.mutate.comment.update({

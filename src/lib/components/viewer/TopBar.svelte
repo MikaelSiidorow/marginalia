@@ -18,7 +18,14 @@
     oncomments?: () => void;
   }
 
-  let { repoFullName, branch, memberCount, commentCount = 0, onshare, oncomments }: Props = $props();
+  let {
+    repoFullName,
+    branch,
+    memberCount,
+    commentCount = 0,
+    onshare,
+    oncomments,
+  }: Props = $props();
 </script>
 
 <header class="topbar">

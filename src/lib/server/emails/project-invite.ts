@@ -57,13 +57,16 @@ export function projectInviteEmail(data: ProjectInviteEmailData) {
               padding: [16, 24],
               border: "1px solid #eee",
             }),
-            text(_(msg`If you weren't expecting this invitation, you can safely ignore this email.`), {
-              fontSize: 14,
-              lineHeight: 1.7,
-              color: "#ababab",
-              marginTop: 14,
-              marginBottom: 38,
-            }),
+            text(
+              _(msg`If you weren't expecting this invitation, you can safely ignore this email.`),
+              {
+                fontSize: 14,
+                lineHeight: 1.7,
+                color: "#ababab",
+                marginTop: 14,
+                marginBottom: 38,
+              },
+            ),
           ],
           { padding: [0, 24] },
         ),

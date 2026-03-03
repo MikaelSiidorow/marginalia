@@ -114,7 +114,7 @@ async function mapWithConcurrency<T, R>(
   limit: number,
   fn: (item: T) => Promise<R>,
 ): Promise<R[]> {
-  const results: R[] = new Array(items.length);
+  const results = new Array<R>(items.length);
   let nextIndex = 0;
 
   async function worker() {
@@ -256,7 +256,10 @@ async function compileProjectImpl(projectId: string): Promise<CompileResult> {
     const compileResult = await Promise.race([
       Promise.resolve(c.compile({ mainFilePath: mainPath })),
       new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("Compilation timed out (60s limit)")), COMPILE_TIMEOUT_MS),
+        setTimeout(
+          () => reject(new Error("Compilation timed out (60s limit)")),
+          COMPILE_TIMEOUT_MS,
+        ),
       ),
     ]);
 

@@ -33,9 +33,7 @@
   let selectedRepo = $state<Repo | null>(null);
 
   const filteredRepos = $derived(
-    search
-      ? repos.filter((r) => r.fullName.toLowerCase().includes(search.toLowerCase()))
-      : repos,
+    search ? repos.filter((r) => r.fullName.toLowerCase().includes(search.toLowerCase())) : repos,
   );
 
   const form = createForm({
@@ -46,7 +44,7 @@
     async onSubmit(data) {
       if (!selectedRepo) return;
       const id = crypto.randomUUID();
-      await z.mutate(
+      z.mutate(
         mutators.project.create({
           id,
           repoFullName: selectedRepo.fullName,
@@ -61,7 +59,7 @@
   const entryFileField = form.fields.entryFile;
 
   $effect(() => {
-    loadRepos();
+    void loadRepos();
   });
 
   async function loadRepos() {

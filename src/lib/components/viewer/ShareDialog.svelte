@@ -38,7 +38,9 @@
 
 <Dialog bind:open {onclose}>
   <h2>{t`Share project`}</h2>
-  <p class="desc">{t`Invite a reviewer by email. They'll receive a magic link to access this project.`}</p>
+  <p class="desc">
+    {t`Invite a reviewer by email. They'll receive a magic link to access this project.`}
+  </p>
 
   {#if form.result}
     <div class="success">

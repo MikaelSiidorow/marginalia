@@ -27,9 +27,34 @@
   const comments = $derived(project?.comments ?? []);
 
   const TEXT_EXTENSIONS = new Set([
-    ".typ", ".txt", ".md", ".bib", ".csv", ".json", ".yaml", ".yml", ".toml", ".xml", ".html",
-    ".css", ".js", ".ts", ".py", ".rs", ".tex", ".sty", ".cls", ".lua", ".sh", ".cfg", ".ini",
-    ".csl", ".xsl", ".xslt", ".log", ".gitignore",
+    ".typ",
+    ".txt",
+    ".md",
+    ".bib",
+    ".csv",
+    ".json",
+    ".yaml",
+    ".yml",
+    ".toml",
+    ".xml",
+    ".html",
+    ".css",
+    ".js",
+    ".ts",
+    ".py",
+    ".rs",
+    ".tex",
+    ".sty",
+    ".cls",
+    ".lua",
+    ".sh",
+    ".cfg",
+    ".ini",
+    ".csl",
+    ".xsl",
+    ".xslt",
+    ".log",
+    ".gitignore",
   ]);
 
   function isTextFile(path: string) {
@@ -79,7 +104,7 @@
 
   // Load file tree when project loads
   $effect(() => {
-    if (project) loadTree();
+    if (project) void loadTree();
   });
 
   async function loadTree() {
@@ -93,7 +118,7 @@
       blobShas = new Map(rawTree.filter((e) => e.type === "blob").map((e) => [e.path, e.sha]));
 
       // Trigger server-side compilation
-      typstProject.compile(projectId);
+      void typstProject.compile(projectId);
 
       // Restore file from URL or auto-select entry file
       const fileFromUrl = page.url.searchParams.get("file");
@@ -113,7 +138,8 @@
     // Sync to URL without adding history entry
     const url = new URL(page.url);
     url.searchParams.set("file", path);
-    replaceState(url, {});
+    // eslint-disable-next-line svelte/no-navigation-without-resolve -- URL is already resolved, just adding query params
+    replaceState(url.pathname + url.search, {});
 
     if (!isTextFile(path)) {
       fileContent = "";
@@ -177,9 +203,9 @@
     pendingAnchor = { file: selectedFile, line };
   }
 
-  async function handleCommentSubmit(body: string) {
+  function handleCommentSubmit(body: string) {
     if (!pendingAnchor) return;
-    await z.mutate(
+    z.mutate(
       mutators.comment.create({
         id: crypto.randomUUID(),
         projectId,
@@ -192,17 +218,17 @@
     pendingAnchor = null;
   }
 
-  async function handleResolve(commentId: string) {
-    await z.mutate(mutators.comment.resolve({ id: commentId, projectId }));
+  function handleResolve(commentId: string) {
+    z.mutate(mutators.comment.resolve({ id: commentId, projectId }));
   }
 
-  async function handleDelete(commentId: string) {
-    await z.mutate(mutators.comment.delete({ id: commentId }));
+  function handleDelete(commentId: string) {
+    z.mutate(mutators.comment.delete({ id: commentId }));
   }
 
   function handleCommentClick(comment: CommentData) {
     if (comment.anchorFile && comment.anchorFile !== selectedFile) {
-      selectFile(comment.anchorFile);
+      void selectFile(comment.anchorFile);
     }
   }
 </script>
@@ -225,7 +251,12 @@
         {#if treeLoading}
           <p class="panel-loading">{t`Loading files...`}</p>
         {:else}
-          <FileTree entries={treeEntries} selectedPath={selectedFile} {projectId} onselect={selectFile} />
+          <FileTree
+            entries={treeEntries}
+            selectedPath={selectedFile}
+            {projectId}
+            onselect={selectFile}
+          />
         {/if}
       </aside>
 

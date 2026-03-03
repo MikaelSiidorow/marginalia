@@ -24,7 +24,7 @@
   let githubConnected = $state<boolean | null>(null);
 
   $effect(() => {
-    checkGitHub();
+    void checkGitHub();
   });
 
   async function checkGitHub() {

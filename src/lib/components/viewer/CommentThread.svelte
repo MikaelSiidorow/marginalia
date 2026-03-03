@@ -30,9 +30,7 @@
 
   const authorName = $derived(comment.author?.name ?? "Unknown");
   const isAuthor = $derived(comment.authorId === currentUserId);
-  const timeAgo = $derived(
-    comment.createdAt ? formatTimeAgo(comment.createdAt) : "",
-  );
+  const timeAgo = $derived(comment.createdAt ? formatTimeAgo(comment.createdAt) : "");
 
   function formatTimeAgo(ts: number): string {
     const diff = Date.now() - ts;

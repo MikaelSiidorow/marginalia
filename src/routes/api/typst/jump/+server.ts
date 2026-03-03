@@ -9,8 +9,17 @@ export const POST: RequestHandler = async ({ locals, request }) => {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = await request.json();
-  const { projectId, direction, file, line, col, page, x, y } = body;
+  const body = (await request.json()) as {
+    projectId?: string;
+    direction?: string;
+    file?: string;
+    line?: number;
+    col?: number;
+    page?: number;
+    x?: number;
+    y?: number;
+  };
+  const { projectId, direction, file, line, page, x, y } = body;
 
   if (!projectId || typeof projectId !== "string") {
     return Response.json({ error: "projectId required" }, { status: 400 });
@@ -41,7 +50,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
       if (!file || typeof line !== "number") {
         return Response.json({ error: "file and line required" }, { status: 400 });
       }
-      const result = await jumpToPreview(projectId, file, line - 1, col ?? 0);
+      const result = await jumpToPreview(projectId, file, line - 1);
       if (!result) {
         return Response.json({ error: "Jump resolution failed" }, { status: 404 });
       }

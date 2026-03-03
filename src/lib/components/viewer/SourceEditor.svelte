@@ -1,6 +1,12 @@
 <script lang="ts">
   import { EditorView, WidgetType, Decoration } from "@codemirror/view";
-  import { EditorState, StateField, StateEffect, Transaction, type Extension } from "@codemirror/state";
+  import {
+    EditorState,
+    StateField,
+    StateEffect,
+    Transaction,
+    type Extension,
+  } from "@codemirror/state";
   import { typst as typstLang } from "codemirror-lang-typst";
   import { xml } from "@codemirror/lang-xml";
   import { yaml } from "@codemirror/lang-yaml";
@@ -46,14 +52,32 @@
     if (!name) return typstLang();
     const ext = name.includes(".") ? name.slice(name.lastIndexOf(".")).toLowerCase() : "";
     switch (ext) {
-      case ".typ": return typstLang();
-      case ".xml": case ".csl": case ".xsl": case ".xslt": case ".html": case ".svg": return xml();
-      case ".yaml": case ".yml": return yaml();
-      case ".json": return json();
-      case ".md": case ".mdx": return markdown();
-      case ".toml": return StreamLanguage.define(toml);
-      case ".bib": case ".tex": case ".sty": case ".cls": return StreamLanguage.define(stex);
-      default: return [];
+      case ".typ":
+        return typstLang();
+      case ".xml":
+      case ".csl":
+      case ".xsl":
+      case ".xslt":
+      case ".html":
+      case ".svg":
+        return xml();
+      case ".yaml":
+      case ".yml":
+        return yaml();
+      case ".json":
+        return json();
+      case ".md":
+      case ".mdx":
+        return markdown();
+      case ".toml":
+        return StreamLanguage.define(toml);
+      case ".bib":
+      case ".tex":
+      case ".sty":
+      case ".cls":
+        return StreamLanguage.define(stex);
+      default:
+        return [];
     }
   }
 
@@ -315,9 +339,10 @@
       cursor: "pointer",
       transition: "opacity 100ms",
     },
-    ".cm-comment-gutter .cm-gutterElement:hover .cm-add-comment, .cm-comment-gutter .cm-gutterElement.cm-gutter-hovered .cm-add-comment": {
-      opacity: "1",
-    },
+    ".cm-comment-gutter .cm-gutterElement:hover .cm-add-comment, .cm-comment-gutter .cm-gutterElement.cm-gutter-hovered .cm-add-comment":
+      {
+        opacity: "1",
+      },
     // Inline comment form
     ".cm-inline-comment": {
       padding: "8px 12px",
@@ -402,8 +427,8 @@
   const cursorTracker = EditorView.updateListener.of((update) => {
     if (!update.selectionSet || !oncursorchange) return;
     // Only trigger on pointer (click) events
-    const isPointer = update.transactions.some(
-      (tr) => tr.annotation(Transaction.userEvent)?.startsWith("select.pointer"),
+    const isPointer = update.transactions.some((tr) =>
+      tr.annotation(Transaction.userEvent)?.startsWith("select.pointer"),
     );
     if (!isPointer) return;
     const line = update.state.doc.lineAt(update.state.selection.main.head).number;
@@ -436,7 +461,9 @@
             return addMarker;
           },
           lineMarkerChange(update) {
-            return update.startState.field(commentLinesField) !== update.state.field(commentLinesField);
+            return (
+              update.startState.field(commentLinesField) !== update.state.field(commentLinesField)
+            );
           },
           domEventHandlers: {
             click(view, line) {

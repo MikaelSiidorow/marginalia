@@ -173,7 +173,7 @@ class TinymistSession {
       });
 
       this.ws.on("message", (data: Buffer | string) => {
-        const buf = typeof data === "string" ? Buffer.from(data) : (data as Buffer);
+        const buf = typeof data === "string" ? Buffer.from(data) : data;
         const text = buf.toString("utf8", 0, Math.min(200, buf.length));
 
         if (text.startsWith("diff-v1,") && !resolved) {
@@ -267,7 +267,10 @@ class TinymistSession {
    * Normalize a title for fuzzy matching.
    */
   private normalizeTitle(title: string): string {
-    return title.toLowerCase().trim().replace(/[^\w\s]/g, "");
+    return title
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s]/g, "");
   }
 
   /**
@@ -287,11 +290,7 @@ class TinymistSession {
    * Source -> Preview: resolve a source location to page coordinates.
    * Uses the document outline to find the nearest heading.
    */
-  async jumpToPreview(
-    file: string,
-    line: number,
-    _col: number,
-  ): Promise<JumpToPreviewResult | null> {
+  async jumpToPreview(file: string, line: number): Promise<JumpToPreviewResult | null> {
     await this.readyPromise;
     if (!this.ready) return null;
     this.resetIdleTimer();
@@ -365,11 +364,7 @@ class TinymistSession {
    * Preview -> Source: resolve page coordinates to a source location.
    * Uses tinymist's src-point which walks the rendered frame tree.
    */
-  async jumpToSource(
-    page: number,
-    x: number,
-    y: number,
-  ): Promise<JumpToSourceResult | null> {
+  async jumpToSource(page: number, x: number, y: number): Promise<JumpToSourceResult | null> {
     await this.readyPromise;
     if (!this.ready || !this.ws) return null;
     this.resetIdleTimer();
@@ -484,7 +479,8 @@ class TinymistSession {
             if (docParams?.uri && docParams.selection && this.sourceWaiter) {
               let relPath = docParams.uri;
               if (relPath.startsWith("file://")) relPath = relPath.slice(7);
-              if (relPath.startsWith(this.workDir)) relPath = relPath.slice(this.workDir.length + 1);
+              if (relPath.startsWith(this.workDir))
+                relPath = relPath.slice(this.workDir.length + 1);
               this.sourceWaiter({
                 file: relPath,
                 line: docParams.selection.start.line + 1,
@@ -629,10 +625,9 @@ export async function jumpToPreview(
   projectId: string,
   file: string,
   line: number,
-  col: number,
 ): Promise<JumpToPreviewResult | null> {
   const session = await getSession(projectId);
-  return session.jumpToPreview(file, line, col);
+  return session.jumpToPreview(file, line);
 }
 
 /**

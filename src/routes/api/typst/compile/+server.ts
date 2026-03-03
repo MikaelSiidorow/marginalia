@@ -9,8 +9,8 @@ export const POST: RequestHandler = async ({ locals, request }) => {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = await request.json();
-  const projectId = body.projectId;
+  const body = (await request.json()) as { projectId?: string };
+  const { projectId } = body;
   if (!projectId || typeof projectId !== "string") {
     return Response.json({ error: "projectId required" }, { status: 400 });
   }

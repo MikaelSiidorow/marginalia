@@ -39,21 +39,25 @@
   let { entries, selectedPath, projectId, onselect }: Props = $props();
 
   // Persist expanded directories per project across sessions
-  const expandedState = new PersistedState<string[]>(
-    `marginalia:tree:${projectId}`,
-    [],
-    {
-      storage: "local",
-      serializer: {
-        serialize: (v) => JSON.stringify(v),
-        deserialize: (v) => { try { return JSON.parse(v); } catch { return undefined; } },
+  const expandedState = new PersistedState<string[]>(`marginalia:tree:${projectId}`, [], {
+    storage: "local",
+    serializer: {
+      serialize: (v) => JSON.stringify(v),
+      deserialize: (v) => {
+        try {
+          return JSON.parse(v);
+        } catch {
+          return undefined;
+        }
       },
     },
-  );
+  });
 
   // Convenience accessors wrapping the persisted array as a Set-like interface
   const expandedDirs = {
-    has(path: string) { return expandedState.current.includes(path); },
+    has(path: string) {
+      return expandedState.current.includes(path);
+    },
     add(path: string) {
       if (!expandedState.current.includes(path)) {
         expandedState.current = [...expandedState.current, path];
@@ -68,6 +72,7 @@
 
   function buildTree(flat: TreeEntry[]): TreeNode[] {
     const root: TreeNode[] = [];
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity -- local variable in pure function, not reactive state
     const dirs = new Map<string, TreeNode>();
 
     // Sort: folders first, then alphabetical
@@ -116,7 +121,19 @@
     }
   });
 
-  type FileKind = "typst" | "pdf" | "bib" | "image" | "markdown" | "xml" | "config" | "code" | "data" | "archive" | "text" | "generic";
+  type FileKind =
+    | "typst"
+    | "pdf"
+    | "bib"
+    | "image"
+    | "markdown"
+    | "xml"
+    | "config"
+    | "code"
+    | "data"
+    | "archive"
+    | "text"
+    | "generic";
 
   function getFileKind(name: string): FileKind {
     const ext = name.includes(".") ? name.slice(name.lastIndexOf(".")).toLowerCase() : "";
@@ -220,11 +237,7 @@
         onclick={() => toggleDir(node.path)}
         title={node.name}
       >
-        <CaretRightIcon
-          size={11}
-          weight="bold"
-          class="caret {isOpen ? 'expanded' : ''}"
-        />
+        <CaretRightIcon size={11} weight="bold" class="caret {isOpen ? 'expanded' : ''}" />
         {#if isOpen}
           <FolderOpenIcon size={15} weight="duotone" class="icon-folder" />
         {:else}

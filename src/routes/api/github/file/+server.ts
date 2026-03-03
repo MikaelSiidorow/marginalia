@@ -92,9 +92,7 @@ export const GET: RequestHandler = async ({ locals, url, request }) => {
       headers: {
         "Content-Type": "application/octet-stream",
         ETag: etag,
-        "Cache-Control": blobSha
-          ? "private, max-age=31536000, immutable"
-          : "private, max-age=300",
+        "Cache-Control": blobSha ? "private, max-age=31536000, immutable" : "private, max-age=300",
       },
     });
   }
@@ -105,9 +103,7 @@ export const GET: RequestHandler = async ({ locals, url, request }) => {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
       ETag: etag,
-      "Cache-Control": blobSha
-        ? "private, max-age=31536000, immutable"
-        : "private, max-age=300",
+      "Cache-Control": blobSha ? "private, max-age=31536000, immutable" : "private, max-age=300",
     },
   });
 };

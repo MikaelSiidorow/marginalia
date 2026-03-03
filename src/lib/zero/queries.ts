@@ -26,10 +26,7 @@ export const queries = defineQueries({
   comment: {
     /** All comments for a project */
     byProject: defineQuery(v.object({ projectId: v.string() }), ({ args }) =>
-      zql.comment
-        .where("projectId", args.projectId)
-        .related("author")
-        .orderBy("createdAt", "asc"),
+      zql.comment.where("projectId", args.projectId).related("author").orderBy("createdAt", "asc"),
     ),
   },
   inAppNotification: {

@@ -15,15 +15,8 @@
     onclose: () => void;
   }
 
-  let {
-    open,
-    comments,
-    currentUserId,
-    onresolve,
-    ondelete,
-    oncommentclick,
-    onclose,
-  }: Props = $props();
+  let { open, comments, currentUserId, onresolve, ondelete, oncommentclick, onclose }: Props =
+    $props();
 
   let sheetEl: HTMLDivElement | undefined = $state();
 
@@ -45,12 +38,7 @@
   }
 </script>
 
-<div
-  class="sheet"
-  popover="auto"
-  bind:this={sheetEl}
-  ontoggle={handleToggle}
->
+<div class="sheet" popover="auto" bind:this={sheetEl} ontoggle={handleToggle}>
   <button class="close" onclick={onclose} aria-label={t`Close`}>
     <XIcon size={16} />
   </button>

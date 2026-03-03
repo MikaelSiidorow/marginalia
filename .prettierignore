@@ -7,4 +7,5 @@ bun.lock
 .svelte-kit
 build
 dist
+drizzle
 *.gen.ts

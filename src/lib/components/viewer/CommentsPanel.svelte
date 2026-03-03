@@ -36,7 +36,7 @@
       body: v.pipe(v.string(), v.minLength(1)),
     }),
     initialValues: { body: "" },
-    async onSubmit(data) {
+    onSubmit(data) {
       onsubmit(data.body.trim());
       form.reset();
     },
@@ -72,7 +72,7 @@
         <Textarea
           name={bodyProps.name}
           id={bodyProps.id}
-          value={String(bodyProps.value ?? "")}
+          value={typeof bodyProps.value === "string" ? bodyProps.value : ""}
           oninput={bodyProps.oninput}
           onblur={bodyProps.onblur}
           placeholder={t`Write a comment...`}

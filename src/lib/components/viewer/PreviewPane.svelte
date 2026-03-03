@@ -43,10 +43,10 @@
   let renderedPages = new SvelteSet<number>();
 
   // Track pages currently being fetched to prevent duplicate requests
-  let loadingPages = new Set<number>();
+  let loadingPages = new SvelteSet<number>();
 
   // Client-side SVG cache: page index → SVG string (survives unrender/re-render cycles)
-  let svgCache = new Map<number, string>();
+  let svgCache = new Map<number, string>(); // eslint-disable-line svelte/prefer-svelte-reactivity -- not used for reactivity, only internal cache
 
   function observeSlots() {
     if (!previewEl || !observer) return;
@@ -64,12 +64,9 @@
     observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          const pageIndex = parseInt(
-            (entry.target as HTMLElement).dataset.page!,
-            10,
-          );
+          const pageIndex = parseInt((entry.target as HTMLElement).dataset.page!, 10);
           if (entry.isIntersecting) {
-            renderPage(pageIndex, entry.target as HTMLElement);
+            void renderPage(pageIndex, entry.target as HTMLElement);
           } else {
             unrenderPage(pageIndex, entry.target as HTMLElement);
           }
@@ -99,7 +96,7 @@
 
     // Preload all pages in the background (low priority, sequential)
     if (_pages.length > 0) {
-      preloadAll(_pages.length);
+      void preloadAll(_pages.length);
     }
   });
 
@@ -186,8 +183,7 @@ svg { display: block; width: 100%; height: auto; }
       const slotRect = slot.getBoundingClientRect();
       const containerRect = previewEl.getBoundingClientRect();
 
-      const scrollY =
-        slotRect.top - containerRect.top + previewEl.scrollTop + targetY * scale;
+      const scrollY = slotRect.top - containerRect.top + previewEl.scrollTop + targetY * scale;
       previewEl.scrollTo({
         top: Math.max(0, scrollY - 80),
         behavior: "smooth",
@@ -268,8 +264,7 @@ svg { display: block; width: 100%; height: auto; }
       if (!pageInfo) return;
       const scale = slot.clientWidth / pageInfo.width;
 
-      const scrollY =
-        slotRect.top - containerRect.top + previewEl.scrollTop + y * scale;
+      const scrollY = slotRect.top - containerRect.top + previewEl.scrollTop + y * scale;
       previewEl.scrollTo({
         top: Math.max(0, scrollY - 50),
         behavior: "smooth",
@@ -309,11 +304,7 @@ svg { display: block; width: 100%; height: auto; }
   <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
   <div class="pages" onclick={handlePreviewClick}>
     {#each pages as page, i (i)}
-      <div
-        class="page-slot"
-        data-page={i}
-        style:aspect-ratio="{page.width} / {page.height}"
-      >
+      <div class="page-slot" data-page={i} style:aspect-ratio="{page.width} / {page.height}">
         <div class="page-content"></div>
       </div>
     {/each}
