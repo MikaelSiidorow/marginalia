@@ -124,7 +124,14 @@
     if (!shadow) {
       shadow = container.attachShadow({ mode: "open" });
     }
-    shadow.innerHTML = `<style>svg { display: block; width: 100%; height: auto; }</style>${svg}`;
+    shadow.innerHTML = `<style>
+svg { display: block; width: 100%; height: auto; }
+.typst-text { pointer-events: bounding-box; }
+.typst-text:hover { fill: oklch(0.55 0.18 40); }
+[onclick]:hover .typst-text,
+[onclick].typst-text:hover { fill: oklch(0.5 0.15 178); }
+[onclick]:hover { cursor: pointer; }
+</style>${svg}`;
     renderedPages.add(pageIndex);
   }
 
