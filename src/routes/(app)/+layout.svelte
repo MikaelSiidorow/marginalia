@@ -2,7 +2,7 @@
   import type { Snippet } from "svelte";
   import type { LayoutData } from "./$types";
   import { Z } from "zero-svelte";
-  import { PUBLIC_SERVER } from "$env/static/public";
+  import { env } from "$lib/env";
   import { schema } from "$lib/zero/schema";
   import { mutators } from "$lib/zero/mutators";
   import { set_z } from "$lib/z.svelte";
@@ -14,7 +14,7 @@
       get userID() {
         return data.user.id;
       },
-      server: PUBLIC_SERVER,
+      server: env.PUBLIC_SERVER,
       schema,
       mutators,
       kvStore: "idb",

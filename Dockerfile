@@ -26,6 +26,10 @@ RUN bunx drizzle-zero generate --output src/lib/zero/zero-schema.gen.ts
 # Build application with metadata
 ENV GITHUB_SHA=${GITHUB_SHA}
 ENV GITHUB_REF_NAME=${GITHUB_REF_NAME}
+# Placeholders for build - real values set at runtime
+ENV PUBLIC_SERVER=http://localhost:4848
+ENV DATABASE_URL=postgres://placeholder:placeholder@localhost:5432/placeholder
+ENV BETTER_AUTH_SECRET=placeholder-secret-for-build-only
 RUN bun run build
 
 # Stage 2: Production
@@ -45,7 +49,7 @@ COPY --from=builder /app/src/lib/server/db ./src/lib/server/db
 
 # Install production deps + drizzle-kit for migrations
 RUN bun install --frozen-lockfile --production --ignore-scripts && \
-    bun add drizzle-kit drizzle-orm postgres
+    bun add --ignore-scripts drizzle-kit drizzle-orm postgres
 
 # Create non-root user
 RUN groupadd -r nodejs && useradd -r -g nodejs nodejs
