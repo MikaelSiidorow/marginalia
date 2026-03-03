@@ -11,7 +11,8 @@ WORKDIR /app
 COPY package.json bun.lock ./
 
 # Install all dependencies (including devDeps for build)
-RUN bun install --frozen-lockfile
+# --ignore-scripts: prepare script needs source files not yet copied
+RUN bun install --frozen-lockfile --ignore-scripts
 
 # Copy source code
 COPY . .
@@ -40,7 +41,7 @@ COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/src/lib/server/db ./src/lib/server/db
 
 # Install production deps + drizzle-kit for migrations
-RUN bun install --frozen-lockfile --production && \
+RUN bun install --frozen-lockfile --production --ignore-scripts && \
     bun add drizzle-kit drizzle-orm postgres
 
 # Create non-root user
