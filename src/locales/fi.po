@@ -12,6 +12,10 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: src/lib/server/emails/project-invite.ts
+msgid "Accept invitation & sign in"
+msgstr ""
+
 #: src/lib/components/viewer/TopBar.svelte
 #: src/routes/(app)/projects/new/+page.svelte
 msgid "Back to projects"
@@ -113,12 +117,21 @@ msgstr ""
 msgid "If you didn't try to sign in, you can safely ignore this email."
 msgstr "Jos et yrittänyt kirjautua, voit jättää tämän sähköpostin huomiotta."
 
+#: src/lib/server/emails/project-invite.ts
+msgid "If you weren't expecting this invitation, you can safely ignore this email."
+msgstr ""
+
 #: src/lib/components/viewer/ShareDialog.svelte
 msgid "Invitation sent!"
 msgstr ""
 
 #: src/lib/components/viewer/ShareDialog.svelte
 msgid "Invite a reviewer by email. They'll receive a magic link to access this project."
+msgstr ""
+
+#: src/lib/server/emails/project-invite.ts
+#: src/lib/server/emails/project-invite.ts
+msgid "invited you to review"
 msgstr ""
 
 #: src/lib/components/viewer/CommentThread.svelte
@@ -184,6 +197,10 @@ msgstr ""
 
 #: src/routes/(public)/sign-in/+page.svelte
 msgid "or"
+msgstr ""
+
+#: src/lib/server/emails/project-invite.ts
+msgid "Or, copy and paste this link:"
 msgstr ""
 
 #: src/lib/server/emails/magic-link.ts
@@ -292,6 +309,10 @@ msgstr ""
 #: src/routes/(app)/+page.svelte
 #~ msgid "Write something..."
 #~ msgstr "Kirjoita jotain..."
+
+#: src/lib/server/emails/project-invite.ts
+msgid "You've been invited to review a project"
+msgstr ""
 
 #: src/routes/(app)/+page.svelte
 #~ msgid "Your notes"

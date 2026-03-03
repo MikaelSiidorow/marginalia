@@ -8,6 +8,17 @@ import { env } from "$lib/server/env";
 import { db } from "./db";
 import * as schema from "./db/schema";
 import { notif } from "./notifications";
+import { projectInviteEmail } from "./emails/project-invite";
+import { sendEmail } from "./emails/send";
+
+// Pending project invites — keyed by email, used to pass context to sendMagicLink
+export interface PendingInvite {
+  projectId: string;
+  projectName: string;
+  inviterName: string;
+  locale?: string;
+}
+export const pendingInvites = new Map<string, PendingInvite>();
 
 let _auth: Auth | undefined;
 
@@ -31,11 +42,27 @@ function createAuth() {
     plugins: [
       magicLink({
         sendMagicLink: async ({ email, url }) => {
-          await notif.send({
-            type: "magic-link",
-            recipientEmail: email,
-            data: { url, locale: getRequestEvent().cookies.get("locale") },
-          });
+          const locale = getRequestEvent().cookies.get("locale");
+          const pendingInvite = pendingInvites.get(email);
+
+          if (pendingInvite) {
+            // Project invite — send invite email with embedded magic link
+            pendingInvites.delete(email);
+            const emailContent = projectInviteEmail({
+              url,
+              projectName: pendingInvite.projectName,
+              inviterName: pendingInvite.inviterName,
+              locale: pendingInvite.locale ?? locale,
+            });
+            await sendEmail(email, emailContent);
+          } else {
+            // Regular sign-in magic link
+            await notif.send({
+              type: "magic-link",
+              recipientEmail: email,
+              data: { url, locale },
+            });
+          }
         },
       }),
       sveltekitCookies(getRequestEvent),

@@ -12,6 +12,10 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: src/lib/server/emails/project-invite.ts
+msgid "Accept invitation & sign in"
+msgstr "Accept invitation & sign in"
+
 #: src/lib/components/viewer/TopBar.svelte
 #: src/routes/(app)/projects/new/+page.svelte
 msgid "Back to projects"
@@ -113,6 +117,10 @@ msgstr "File tree"
 msgid "If you didn't try to sign in, you can safely ignore this email."
 msgstr "If you didn't try to sign in, you can safely ignore this email."
 
+#: src/lib/server/emails/project-invite.ts
+msgid "If you weren't expecting this invitation, you can safely ignore this email."
+msgstr "If you weren't expecting this invitation, you can safely ignore this email."
+
 #: src/lib/components/viewer/ShareDialog.svelte
 msgid "Invitation sent!"
 msgstr "Invitation sent!"
@@ -120,6 +128,11 @@ msgstr "Invitation sent!"
 #: src/lib/components/viewer/ShareDialog.svelte
 msgid "Invite a reviewer by email. They'll receive a magic link to access this project."
 msgstr "Invite a reviewer by email. They'll receive a magic link to access this project."
+
+#: src/lib/server/emails/project-invite.ts
+#: src/lib/server/emails/project-invite.ts
+msgid "invited you to review"
+msgstr "invited you to review"
 
 #: src/lib/components/viewer/CommentThread.svelte
 msgid "just now"
@@ -185,6 +198,10 @@ msgstr "No repositories found"
 #: src/routes/(public)/sign-in/+page.svelte
 msgid "or"
 msgstr "or"
+
+#: src/lib/server/emails/project-invite.ts
+msgid "Or, copy and paste this link:"
+msgstr "Or, copy and paste this link:"
 
 #: src/lib/server/emails/magic-link.ts
 msgid "Or, copy and paste this temporary login URL:"
@@ -292,6 +309,10 @@ msgstr "Write a comment..."
 #: src/routes/(app)/+page.svelte
 #~ msgid "Write something..."
 #~ msgstr "Write something..."
+
+#: src/lib/server/emails/project-invite.ts
+msgid "You've been invited to review a project"
+msgstr "You've been invited to review a project"
 
 #: src/routes/(app)/+page.svelte
 #~ msgid "Your notes"

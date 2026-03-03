@@ -40,6 +40,9 @@
 
 <style>
   dialog {
+    position: fixed;
+    inset: 0;
+    margin: auto;
     border: none;
     border-radius: var(--radius-lg);
     padding: 0;
