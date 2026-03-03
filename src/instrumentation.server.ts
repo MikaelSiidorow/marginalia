@@ -1,59 +1,52 @@
-// OpenTelemetry instrumentation - only enabled when OTEL_EXPORTER_OTLP_ENDPOINT is configured
+import { createAddHookMessageChannel } from "import-in-the-middle";
+import { register } from "node:module";
+
+const { registerOptions } = createAddHookMessageChannel();
+register("import-in-the-middle/hook.mjs", import.meta.url, registerOptions);
+
 const otlpEndpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
 
+// Only initialize OTEL if endpoint is configured
 if (otlpEndpoint) {
-  // Dynamic imports to avoid loading OTEL when not configured
-  void Promise.all([
-    import("@opentelemetry/sdk-node"),
-    import("@opentelemetry/auto-instrumentations-node"),
-    import("@opentelemetry/exporter-trace-otlp-proto"),
-    import("@opentelemetry/exporter-logs-otlp-proto"),
-    import("@opentelemetry/resources"),
-    import("@opentelemetry/semantic-conventions"),
-    import("@opentelemetry/sdk-logs"),
-    import("@opentelemetry/core"),
-  ]).then(
-    ([
-      { NodeSDK },
-      { getNodeAutoInstrumentations },
-      { OTLPTraceExporter },
-      { OTLPLogExporter },
-      { resourceFromAttributes },
-      { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION },
-      { SimpleLogRecordProcessor },
-      { W3CTraceContextPropagator },
-    ]) => {
-      const resource = resourceFromAttributes({
-        [ATTR_SERVICE_NAME]: "marginalia-server",
-        [ATTR_SERVICE_VERSION]: "0.0.1",
-      });
+  const { NodeSDK } = await import("@opentelemetry/sdk-node");
+  const { getNodeAutoInstrumentations } = await import("@opentelemetry/auto-instrumentations-node");
+  const { OTLPTraceExporter } = await import("@opentelemetry/exporter-trace-otlp-proto");
+  const { OTLPLogExporter } = await import("@opentelemetry/exporter-logs-otlp-proto");
+  const { SimpleLogRecordProcessor } = await import("@opentelemetry/sdk-logs");
+  const { resourceFromAttributes } = await import("@opentelemetry/resources");
+  const { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } =
+    await import("@opentelemetry/semantic-conventions");
+  const { W3CTraceContextPropagator } = await import("@opentelemetry/core");
 
-      const logExporter = new OTLPLogExporter({
-        url: `${otlpEndpoint}/v1/logs`,
-      });
+  const resource = resourceFromAttributes({
+    [ATTR_SERVICE_NAME]: "marginalia-server",
+    [ATTR_SERVICE_VERSION]: "0.0.1",
+  });
 
-      const sdk = new NodeSDK({
-        resource,
-        traceExporter: new OTLPTraceExporter({
-          url: `${otlpEndpoint}/v1/traces`,
-        }),
-        textMapPropagator: new W3CTraceContextPropagator(),
-        logRecordProcessors: [new SimpleLogRecordProcessor(logExporter)],
-        instrumentations: [
-          getNodeAutoInstrumentations({
-            "@opentelemetry/instrumentation-fs": { enabled: false },
-            "@opentelemetry/instrumentation-pino": { enabled: true },
-            "@opentelemetry/instrumentation-http": { enabled: true },
-          }),
-        ],
-      });
+  const logExporter = new OTLPLogExporter({
+    url: `${otlpEndpoint}/v1/logs`,
+  });
 
-      sdk.start();
-      console.log(`OpenTelemetry initialized, exporting to ${otlpEndpoint}`);
+  const sdk = new NodeSDK({
+    resource,
+    traceExporter: new OTLPTraceExporter({
+      url: `${otlpEndpoint}/v1/traces`,
+    }),
+    textMapPropagator: new W3CTraceContextPropagator(),
+    logRecordProcessors: [new SimpleLogRecordProcessor(logExporter)],
+    instrumentations: [
+      getNodeAutoInstrumentations({
+        "@opentelemetry/instrumentation-fs": { enabled: false },
+        "@opentelemetry/instrumentation-pino": { enabled: true },
+        "@opentelemetry/instrumentation-http": { enabled: true },
+      }),
+    ],
+  });
 
-      process.on("SIGTERM", () => {
-        void sdk.shutdown().finally(() => process.exit(0));
-      });
-    },
-  );
+  sdk.start();
+  console.log(`[OpenTelemetry] Initialized, exporting to ${otlpEndpoint}`);
+
+  process.on("SIGTERM", () => {
+    void sdk.shutdown().finally(() => process.exit(0));
+  });
 }
